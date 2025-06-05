@@ -1,0 +1,21 @@
+CLEAR
+
+DO XMLExporter.prg
+DO JsonExporter.prg
+
+LOCAL tabledb, xmlFile, jsonFile
+tabledb = "movimien.dbf"
+xmlFile = "movimien.xml"
+jsonFile = "movimien.json"
+
+IF exportToXML(tabledb, xmlFile)
+    ? "XML exported"
+ELSE
+    ? "Something went wrong while exporting the XML file"
+ENDIF
+
+IF exportToJSON(tabledb, jsonFile)
+    ? "JSON exported"
+ELSE
+    ? "Something went wrong while exporting the JSON file"
+ENDIF

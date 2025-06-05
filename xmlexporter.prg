@@ -1,0 +1,48 @@
+PROCEDURE exportToXML(tableName, outputFileName)
+    LOCAL fileOut, nField, i
+    LOCAL fieldName, fieldValue, xmlContent
+    LOCAL totalRecords, recordNum
+
+    USE (tableName) IN 0
+
+    totalRecords = RECCOUNT()
+    recordNum = 0
+
+    fileOut = FCREATE(outputFileName)
+    nField = FCOUNT()
+
+    xmlContent = '<?xml version="1.0" encoding="UTF-8"?>' + CHR(13)
+    xmlContent = xmlContent + '<tabla name="' + tableName + '">' + CHR(13)
+    xmlContent = xmlContent + '  <lineas>' + CHR(13)
+
+    GO TOP
+    DO WHILE !EOF()
+        recordNum = recordNum + 1
+
+        xmlContent = xmlContent + '    <linea id="' + TRANSFORM(recordNum) + '">' + CHR(13)
+
+        FOR i = 1 TO nField
+            fieldName = FIELD(i)
+            fieldValue = TRANSFORM(EVALUATE(fieldName))
+
+            fieldValue = STRTRAN(fieldValue, CHR(13), "")
+            fieldValue = STRTRAN(fieldValue, CHR(10), "")
+
+            fieldValue = STRTRAN(fieldValue, "&", "&amp;")
+            fieldValue = STRTRAN(fieldValue, "<", "&lt;")
+            
+            xmlContent = xmlContent + '      <' + fieldName + '>' + fieldValue + '</' + fieldName + '>' + CHR(13)
+        ENDFOR
+
+        xmlContent = xmlContent + '    </linea>' + CHR(13)
+
+        SKIP
+    ENDDO
+
+    xmlContent = xmlContent + '  </lineas>' + CHR(13)
+    xmlContent = xmlContent + '</tabla>' + CHR(13)
+
+    =FWRITE(fileOut, STRCONV(xmlContent, 9))
+    =FCLOSE(fileOut)
+    USE
+ENDPROC
